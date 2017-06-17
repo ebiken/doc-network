@@ -1,5 +1,7 @@
 # MEMO: IS-IS Testing
 
+Tested using Ubuntu 16.04
+
 ## Install and configure quagga
 
 Reference: https://wiki.ubuntu.com/JonathanFerguson/Quagga
@@ -57,6 +59,7 @@ ip netns exec host2 telnet localhost 2608
 ## LOGS
 
 ```
+> Before connecting bridge
 # ip netns exec host1 telnet localhost 2601
 Hello, this is Quagga (version 0.99.24.1).
 Copyright 1996-2005 Kunihiro Ishiguro, et al.
@@ -78,6 +81,30 @@ Codes: K - kernel route, C - connected, S - static, R - RIP,
 
 C>* 10.0.0.2/32 is directly connected, lo
 C>* 127.0.0.0/8 is directly connected, lo
+C>* 172.20.0.0/24 is directly connected, veth2
+
+> After connecting vtap via bridge
+
+Zebra-1> show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel,
+       > - selected route, * - FIB route
+
+C>* 10.0.0.1/32 is directly connected, lo
+I>* 10.0.0.2/32 [115/20] via 172.20.0.2, veth1, 00:14:14
+C>* 127.0.0.0/8 is directly connected, lo
+I   172.20.0.0/24 [115/20] via 172.20.0.2 inactive, 00:14:14
+C>* 172.20.0.0/24 is directly connected, veth1
+
+Zebra-2> show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel,
+       > - selected route, * - FIB route
+
+I>* 10.0.0.1/32 [115/20] via 172.20.0.1, veth2, 00:14:22
+C>* 10.0.0.2/32 is directly connected, lo
+C>* 127.0.0.0/8 is directly connected, lo
+I   172.20.0.0/24 [115/20] via 172.20.0.1 inactive, 00:14:22
 C>* 172.20.0.0/24 is directly connected, veth2
 
 lab-isis-1> show isis neighbor
